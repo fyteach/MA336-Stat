@@ -1,0 +1,593 @@
+---
+title: "Linear Regression"
+subtitle: "MA336 Statistics<br/><br/>"
+author: "Fei Ye <br/><br/> Department of Mathematics and Computer Science<br/><br/>"
+date: "Spring 2019"
+output:
+  xaringan::moon_reader:
+    css: [default, default-fonts, "Assets/css/custom.css"]
+    mathjax: "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=TeX-MML-AM_HTMLorMML-full"
+    nature:
+      ratio: '16:9' # alternatives '16:9' or '4:3' or others e.g. 13:9
+      highlightStyle: github
+      countIncrementalSlides: false  
+      beforeInit: ["Assets/js/resize.js"]
+---
+
+```{r, echo=FALSE}
+knitr::opts_chunk$set(comment="#", fig.retina=2, crayon.enabled = TRUE)
+library(stats)
+library(kableExtra)
+library(knitr)
+library(formattable)
+library(ggplot2)
+library(ggthemes)
+library(ggExtra)
+library(dplyr,warn.conflicts = FALSE)
+```
+
+
+## Textbooks
+
+- [Concepts in Statistics](https://courses.lumenlearning.com/wmopen-concepts-statistics/)
+
+- [Introductory Statistics](https://open.umn.edu/opentextbooks/textbooks/introductory-statistics)
+
+---
+class: center middle
+# Learning Goals
+
+---
+## Learning Goals for Linear Regressions
+
+- Summarize and interpret the relationship between two quantitative variables.
+
+- Demonstrate understanding of concepts pertaining to linear regression.
+
+- Use regression equations to make predictions and understand its limits.
+
+
+---
+class: center middle
+# Describe Relations by Graphing
+
+---
+## Scatterplots (1/5)
+
+- Correlation refers to a relationship between two quantitative variables:  
+  - the independent (or explanatory) variable, usually denoted by $x$.
+  
+  - the dependent (or response) variable, usually denoted by $y$.
+
+- **Example:** In a study of education attainment and annual salary, the years of education is the explanatory variable and the annual salary is the response variable.
+
+- To describe the relationship between two quantitative variables, statisticians use a scatterplot.
+
+- In a scatterplot, we describe the overall pattern with descriptions of direction, form, and strength.
+
+---
+## Scatterplots (2/5)
+.pull-left[
+- **Positive relationship**: the response variable (y) increases when the explanatory variable (x) increases.
+  
+.center[
+```{r echo=FALSE, result='asis', fig.width=4, fig.asp=1}
+ load("../Data-Frames-SUNY-Concepts-in-Statistics/gradebook.rdata")
+ gradebook <- rename(data)
+ ggplot(head(gradebook,20), aes(x=Midterm1, y=Final)) +
+   geom_point(cex=3) +
+   geom_smooth(method=lm, se=FALSE) +
+   theme_bw()
+```
+]
+]
+
+.pull-right[ 
+- **Negative relationship**: the response variable (y) decreases when the explanatory variable (x) increases.
+  
+.center[
+```{r echo=FALSE, result='asis', fig.width=4, fig.asp=1}
+ggplot(head(mtcars,20), aes(x=wt, y=mpg)) +
+  geom_point(cex=3) +
+  geom_smooth(method=lm, se=FALSE) +
+  theme_bw()
+```  
+]
+]
+
+
+---
+## Scatterplots (3/5)
+
+.pull-left[ 
+-  **Linear form** 
+  
+.center[
+```{r echo=FALSE, result='asis', fig.width=2.75, fig.asp=1}
+load("../Data-Frames-SUNY-Concepts-in-Statistics/cell_phones.RData")
+cellphone <- rename(data)
+ggplot(na.omit(head(cellphone,20)), aes(x=Math, y=Verbal)) +
+  geom_point(cex=3) +
+  geom_smooth(method=lm, se=FALSE) +
+  theme_bw()
+```  
+]
+]
+.pull-right[
+- **Curvilinear form**
+  
+.center[
+```{r echo=FALSE, result='asis', fig.width=2.75, fig.asp=1}
+Anscombe.II.x<- c(10.0, 8.0, 13.0, 9.0, 11.0, 14.0, 6.0, 4.0, 12.0, 7.0, 5.0)
+Anscombe.II.y<- c(9.14, 8.14, 8.74, 8.77, 9.26, 8.10, 6.13, 3.10, 9.13, 7.26, 4.74)
+Anscombe.data <- data.frame(Anscombe.II.x, Anscombe.II.y)
+ggplot(Anscombe.data, aes(x=Anscombe.II.x, y=Anscombe.II.y)) +
+  geom_point(cex=3) +
+  geom_smooth(method=loess, se=FALSE) + 
+  theme_bw()
+```
+]
+]
+
+- **No obvious relationship**
+  
+.center[
+```{r echo=FALSE, result='asis', fig.width=2.75, fig.asp=1}
+set.seed(955)
+# Make some noisily increasing data
+dat <- data.frame(cond = rep(c("A", "B"), each=10),
+                  xvar = 1:10 + rnorm(20,sd=2),
+                  yvar = 1:10 + rnorm(10,sd=5))
+ggplot(dat, aes(x=xvar, y=yvar)) +
+  geom_point(cex=3) +
+  # geom_smooth(method=lm, se=FALSE) +
+  theme_bw()  +
+  xlab("x") +
+  ylab("y")
+```
+]
+
+
+
+---
+## Scatterplots (4/5)
+
+- The strength of the relationship is a description of how closely the data follow the form of the relationship.
+
+.pull-left[
+  .center[
+    ![A picture shows a strong relationship](Figures/strong-relation.png)
+  ]
+]
+.pull-right[
+  .center[
+    ![A picture shows a weaker relationship](Figures/weaker-relationship.png)
+  ]
+]
+
+---
+## Scatterplots (5/5)
+
+- Outliers are points that deviate from the pattern of the relationship. 
+
+.center[
+  ![:resize A picture shows a outlier to a relationship, 40%](Figures/outlier-in-relationship.png)
+]
+
+
+---
+class: center middle
+
+# Linear Relationships
+
+
+---
+## The Correlation Coefficient - Definition (1/2)
+
+- The correlation coefficient $r$ is a numeric measure that measures the strength and direction of a linear relationship between two quantitative
+variables.
+$$r=\dfrac{\sum\left(\frac{x-\bar{x}}{s_x}\right)\left(\frac{y-\bar{y}}{s_y}\right)}{n-1},$$
+where $n$ is the sample size, $x$ is a data value for the explanatory variable, $\bar{x}$ is the mean of the $𝑥$-values, $𝑠_x$ is the standard deviation of the $𝑥$-values, and similarly, for the notations involving 𝑦.
+
+- The expression $z=\frac{x-\bar{x}}{s_x}$ is known as the standardized variable (or $z$-score) which
+  - doesn't depend on the unit of the variable $x$,
+  - has mean $0$ and standard deviation 1.
+
+- In Excel, the correlation coefficient can be calculated using the function `correl()`.
+
+- [Scatterplots with different correlation coefficients](https://courses.lumenlearning.com/wmopen-concepts-statistics/chapter/linear-relationships-2-of-4/)
+
+
+???
+$$
+r=\dfrac{\mathbf{x}\cdot\mathbf{y}}{\lVert\mathbf{x}\rVert\cdot \lVert\mathbf{y}\rVert}=\dfrac{\sum\left(\frac{x-\bar{x}}{s_x}\right)\left(\frac{y-\bar{y}}{s_y}\right)}{\sqrt{\sum\left(\frac{x-\bar{x}}{s_x}\right)^2}\cdot\sqrt{\left(\frac{y-\bar{y}}{s_y}\right)^2}}=\dfrac{\sum\left(\frac{x-\bar{x}}{s_x}\right)\left(\frac{y-\bar{y}}{s_y}\right)}{n-1},
+$$
+
+---
+## The Correlation Coefficient - Definition (2/2)
+
+- **Rounding Rule:** Round to the nearest thousandth for $r$, $m$ and $b$.
+
+- Geometric explanation of the definition of $r$.
+
+.pull-left[
+.center[
+```{r echo=FALSE, result='asis', fig.width=3.5, fig.asp=1}
+Anscombe.I.x<- c(10.00,8.00,13.00,9.00,11.00,14.00,6.00,4.00,12.00,7.00,5.00)
+Anscombe.I.y<- c(8.04, 6.95, 7.58, 8.81, 8.33, 9.96, 7.24, 4.26, 10.84, 4.82, 5.68)
+Anscombe.data <- data.frame(Anscombe.I.x, Anscombe.I.y)
+ggplot(Anscombe.data, aes(x=Anscombe.I.x, y=Anscombe.I.y)) +
+  geom_point(cex=3) +
+  geom_smooth(method=lm, se=FALSE) + 
+  geom_vline(xintercept=mean(Anscombe.data$Anscombe.I.x))+
+  geom_hline(yintercept=mean(Anscombe.data$Anscombe.I.y))+
+  theme_bw() +
+  xlab("x") +
+  ylab("y")
+```
+
+$r=$ `r format(round(cor(Anscombe.data$Anscombe.I.x, Anscombe.data$Anscombe.I.y, method="pearson"), 3), nsmall=3)`
+]
+]
+.pull-right[
+.center[
+```{r echo=FALSE, result='asis', fig.width=3.5, fig.asp=1}
+set.seed(955)
+# Make some noisily increasing data
+dat <- data.frame(cond = rep(c("A", "B"), each=10),
+                  xvar = 1:10 + rnorm(20,sd=2),
+                  yvar = 1:10 + rnorm(10,sd=5))
+ggplot(dat, aes(x=xvar, y=yvar)) +
+  geom_point(cex=3) +
+  # geom_smooth(method=lm, se=FALSE) +
+  theme_bw()  +
+  xlab("x") +
+  ylab("y") + 
+  geom_vline(xintercept=mean(dat$xvar))+
+  geom_hline(yintercept=mean(dat$yvar))
+```
+
+$r=$ `r format(round(cor(dat$xvar, dat$yvar, method="pearson"), 3), nsmall=3)`
+]
+]
+
+- **Remark:**
+  - $r>0$ if all points $(x-\bar{x}, y-\bar{y})$ are in the 1st and the 3rd quadrants. 
+  - $r<0$ if all points $(x-\bar{x}, y-\bar{y})$ are in the 2nd and the 4th quadrants. 
+
+---
+
+## The Correlation Coefficient - Properties
+
+- The correlation coefficient $r$ is between $-1$ and $1$.
+
+- The closer the absolute value $|r|$ is to $1$, the stronger the linear relationship is.
+
+- The correlation is symmetric in $x$ and $y$, that is `correl(x, y)=correl(y, x)`.
+
+- The correlation does not change when the units of measurement of either one of the variables change. In other words, if we change the units of
+measurement of the explanatory variable and/or the response variable, it has no effect on the correlation (r).
+
+- The correlation by itself is not enough to determine whether a relationship is linear. It's important to graph data set before analyzing it. [See Francis Anscombe's demonstration both the importance of graphing data and  and the effect of outliers on statistical properties.](https://en.wikipedia.org/wiki/Anscombe%27s_quartet)
+
+- The correlation is heavily influenced by outliers. [Try the simulation in Linear Relation (4 of 4) in Concepts in Statistics](https://courses.lumenlearning.com/wmopen-concepts-statistics/chapter/linear-relationships-4-of-4/)
+
+---
+
+## The Correlation Coefficient - Example (1/2)
+
+- Describe the relationship between Midterm 1 and Final for a sample of 10 students.
+
+.left-column[
+.center[
+```{r echo=FALSE, result='asis'}
+kable(gradebook[20:30,c("Midterm1", "Final")],
+    format = "html", 
+    booktabs = TRUE, 
+    align = "c",
+   row.names = FALSE
+  ) %>%
+  kable_styling(full_width = F, bootstrap_options = c("striped", "hover", "condensed"))
+  # scroll_box(width="60%", height = "475px")
+```
+]
+]
+.right-column[
+**Solution:**
+- First we create a scatterplot.
+.center[
+```{r echo=FALSE, result='asis', fig.width=3, fig.asp=1}
+ggplot(gradebook[20:30,c("Midterm1", "Final")], aes(x=Midterm1, y=Final)) +
+  geom_point(cex=3) +
+  geom_smooth(method=lm, se=FALSE) +
+  theme_bw()
+```
+]
+- Using the Excel function `correl(x, y)`, 
+we find the correlation coefficient is 
+$r=$ `r format(round(cor(gradebook[20:30,c("Midterm1", "Final")]$Midterm1, 
+gradebook[20:30,c("Midterm1", "Final")]$Final, method="pearson"), 3), nsmall=3)`.
+
+- The $r$-value shows a **strong positive linear** relationship. 
+]
+
+---
+
+## The Correlation Coefficient - Example (1/2)
+
+.left-column[
+
+- $r$ can also be calculation by hand using the formula.
+$\dfrac{\sum z_xz_y}{n-1}$, where $z_x=\frac{x-\bar{x}}{s_x}$ and 
+$z_y=\frac{y-\bar{y}}{s_y}$.
+]
+.right-column[
+| Midterm1 | Final    | z_x      | z_y      | z_xy        |
+| -------- | -------- | -------- | -------- | ----------- |
+| 72       | 72       | -0.78006 | -1.06926 | 0.834087814 |
+| 93       | 88       | 1.50088  | 1.544483 | 2.318083715 |
+| 81       | 82       | 0.197484 | 0.56433  | 0.111446332 |
+| 82       | 82       | 0.306101 | 0.56433  | 0.172741815 |
+| 94       | 88       | 1.609497 | 1.544483 | 2.485839773 |
+| 80       | 77       | 0.088868 | -0.25246 | -0.02243591 |
+| 73       | 78       | -0.67145 | -0.0891  | 0.059829084 |
+| 71       | 77       | -0.88868 | -0.25246 | 0.224359064 |
+| 81       | 76       | 0.197484 | -0.41582 | -0.08211835 |
+| 81       | 76       | 0.197484 | -0.41582 | -0.08211835 |
+| 63       | 68       | -1.75761 | -1.72269 | 3.027820885 |
+| 79.18182 | 78.54545 |<- mean   | sum ->   | 9.047535876 |
+| 9.206717 | 6.121497 |<- stdev.s|correl -> | 0.904753588 |
+]
+
+---
+
+## Correlation v.s. Causation (1/2)
+
+- Correlation is described by data from observational study. Observational studies cannot prove cause and effect which requires controlled study and rigorous inferences.
+
+- Correlation may be used to make a prediction which is probabilistic.
+
+- In a linear relationship, an $r$-value that is close to 1 or -1 is insufficient to claim that the explanatory variable causes changes in the response variable. The correct interpretation is that there is a statistical relationship between the variables.
+
+- A **lurking variable** is a variable that is not measured in the study, but affects the interpretation of the relationship between the explanatory and response variables.
+
+---
+
+## Correlation v.s. Causation (2/2)
+
+- **Example:**
+  - Correlation: The more fire fighters, the more likely there is bigger damage. However the fire fighters do not cause the fire.
+  
+  - Prediction: You could predict the amount of damage by looking at the number of fire fighters present.
+  
+  - Causation: The fire fighters are unlikely the cause of the fire.
+  
+  - Lurking variable: The seriousness of the fire is a lurking variable.
+
+See [Causation and Lurking Variables in Concepts in Statistics for more example](https://courses.lumenlearning.com/wmopen-concepts-statistics/chapter/linear-relationships-4-of-4/)
+
+---
+
+## Linear Regression (1/3)
+
+- The line that best summarizes a linear relationship is **the leastsquares regression line**. The regression line is the line with the smallest sum of squares of the errors (**SSE**).
+
+- We use the least-squares regression line to predict the value $\hat{y}$ for a value of the explanatory variable $x$.
+
+- The regression line is unique and passes though $(\bar{x}, \bar{y})$. The equation is given by
+  $$\hat{y}=m(x-\bar{x})+\bar{y}=m x+b,$$
+  where the slope is $$m=\frac{\sum(x-\bar{x})(y-\bar{y})}{\sum(x-\bar{x})^2}=r\frac{s_y}{s_x}$$ and the $y$-intercept is
+  $b=\bar{y}-m\bar{x}.$
+
+
+---
+
+## Linear Regression (2/3)
+
+- The **error of a prediction** is 
+  $$\text{Error}=\text{Observed}-\text{Predicted}=y-\hat{y}.$$
+
+- A prediction beyond the range of the data is called **extrapolation**.
+
+- **Example:** The following sample is taken from data about the Old Faithful geyser. Study the linear relationship. Find the regression line, and the predicated value and the error if the eruption time is 1.8 minutes.
+
+
+.pull-left[
+.center[
+```{r echo=FALSE, result='asis'}
+spring1 <- faithful[12:16, c("eruptions", "waiting")]
+spring2 <- faithful[17:21, c("eruptions", "waiting")]
+kable(cbind(spring1,spring2),
+    format = "html", 
+    booktabs = TRUE, 
+    align = "c",
+   row.names = FALSE
+  ) %>%
+  kable_styling(full_width = F, bootstrap_options = c("striped", "hover", "condensed"))
+  # scroll_box(width="60%", height = "475px")
+```
+]
+]
+.pull-right[
+  .center[
+  ```{r echo=FALSE, result='asis', fig.width=3, fig.asp=1}
+  spring <- faithful[12:21, c("eruptions", "waiting")]
+  ggplot(spring, aes(y=waiting, x=eruptions)) +
+    geom_point(cex=3) +
+    geom_smooth(method=lm, se=FALSE) +
+    theme_bw()
+  ```
+  ]
+]
+
+---
+
+## Linear Regression - Example (2/2)
+
+- **Solution:**
+`r reg.line=lm(spring$waiting ~ spring$eruptions)`
+  The Scatterplot shows a linear relationship.
+  
+  To find the regression line, we use the Excel function `slope()`. In this example, $m= `r coefx=round(reg.line$coefficients[2],3)` `r coefx`$.
+    
+  To find $m$ and use the Excel function `intercept()` to find the $y$-intercept $b$. In this example, $b= `r yint=round(reg.line$coefficients[1],3)` `r yint`$.
+    
+  The equation of the line is $\hat{y}=`r coefx`x + `r yint`$.
+
+  When $x=1.8$, we have $\hat{y}=`r coefx`*1.8 + `r yint`=`r ypred=coefx*1.8+yint` `r ypred`$.
+
+  The errow is 
+    $y-\hat{y}=`r spring[10, ]$waiting`-`r ypred`=`r error=spring[10,]$waiting-ypred` `r error`$. That means the predication over-estimates the eruption time about `r round(error, 2)` minutes.
+
+
+---
+class: center middle
+## Assessing the Fit of a Regression Model
+
+---
+## Fit of a Regression Line (1/3)
+
+- The prediction error is also called a **residual**. Another way to express the previous equation is
+  $$y=\hat{y}+\text{residual}.$$
+
+- **Residual plots** are used to determine if a linear model is appropriate. 
+  
+- A random pattern (or no obvious pattern) indicates a good fit of a linear model.  [See Assessing the Fit of a Line (2 of 4) in Concepts in Statistics for examples.](https://courses.lumenlearning.com/wmopen-concepts-statistics/chapter/assessing-the-fit-of-a-line-2-of-4/)
+
+- One measure of the fit of a regression line is the proportion of the variation in the response variable that is explained by the least-squares regression line.
+  - The **total variance** is  $SST=\sum(y-\bar{y})^2$
+  - The **explained variance** is $SSR=\sum(\hat{y}-\bar{y})^2$.
+  - The **coefficient of determination** is 
+  $$r^2=\dfrac{SSR}{SST}=\dfrac{\sum(y-\bar{y})^2}{\sum(\hat{y}-\bar{y})^2}.$$
+
+ 
+---
+
+## Fit of a Regression Line (2/3)
+
+- **Remark:**
+  - The $r$ in the coefficient of determination is the correlation coefficient. Equivalently, $r=\pm\sqrt{r^2}$.
+  - Write the sum of square errors as $SSE=\sum (y-\hat{y})^2$. Then 
+   $$r^2=1-\dfrac{SSE}{SST}.$$
+
+- Another measure of the fit of the regression is the **residual standard errors** (or **standard error of the regression**), calculated by the Excel function `STEYX()`,  is
+  $$s_e=\sqrt{\dfrac{SSE}{n-2}}.$$ 
+
+- The smaller $s_e$ is, the more accurate the prediction is. 
+
+---
+
+## Fit of a Regression Line (3/3)
+
+- **Example:**
+  The coefficient of determination for the data of midterm1 and final is 
+  $$r^2=0.905^2\approx 0.819.$$
+
+- **Example:**
+  The residual standard errors of the regression in the Old Faithful example is about `r round(summary(reg.line)$sigma,3)`.
+
+
+???
+- In a linear regression model $Y=\beta_0 x+ \beta_1 X +\epsilon$, even we have $\beta_0$ and $\beta_1$ from the population, we still need estimate the standard deviation of error.
+
+- $n−2$ is the degrees of freedom (we lose two degrees of freedom because we estimate the slope and the $y$-intercept).
+
+
+---
+class: center middle
+# Exercises on Linear Regressions
+
+---
+## Exercises (1/2)
+.pull-left[
+**Exercise:** The tables show a sample of 23 records on years and winning times for the 1,500 meter race in Olympic Games.
+  - Draw a scatter plot for the data table.
+  - Is it appropriate to study the relationship using a linear model.
+  - Find and interpret the correlation coefficient.
+  - Find an equation of the regression.
+  - Make a prediction of the winning time for the year 1998.
+  - What is the residual for the year 1992.
+  - Find and interpret the coefficient of determination. 
+]
+.pull-right[
+.pull-left[
+```{r echo=F, result = 'asis'}
+load("../Data-Frames-SUNY-Concepts-in-Statistics/olympics.rdata")
+olympic <- olym[c("Year", "Time")]
+kable(olympic[2:13, ],
+    format = "html", 
+    booktabs = TRUE, 
+    align = "c",
+   row.names = FALSE
+  ) %>%
+  kable_styling(full_width = F, bootstrap_options = c("striped", "hover", "condensed"))
+  # scroll_box(width="60%", height = "475px")
+``` 
+]
+.pull-right[
+```{r echo=F, result = 'asis'}
+kable(olympic[14:24, ],
+    format = "html", 
+    booktabs = TRUE, 
+    align = "c",
+   row.names = FALSE
+  ) %>%
+  kable_styling(full_width = F, bootstrap_options = c("striped", "hover", "condensed"))
+  # scroll_box(width="60%", height = "475px")
+```
+] 
+]
+
+  Data source: [suny-wmopen-concepts-statistics](https://courses.lumenlearning.com/suny-wmopen-concepts-statistics/chapter/assignment-linear-regression/)
+
+
+---
+## Exercises (2/2)
+
+**Exercise:** Read the textbook and try exercises in there.
+
+- [Interpreting the Scatterplot](https://courses.lumenlearning.com/wmopen-concepts-statistics/chapter/scatterplots-2-of-5/)
+  
+- [Making Predictions](https://courses.lumenlearning.com/wmopen-concepts-statistics/chapter/linear-regression-1-of-4/)
+
+- [Regression Equation](https://courses.lumenlearning.com/wmopen-concepts-statistics/chapter/linear-regression-3-of-4/)
+
+- [Residual Plots](https://courses.lumenlearning.com/wmopen-concepts-statistics/chapter/assessing-the-fit-of-a-line-2-of-4/)
+
+- [Coefficient of Determination](https://courses.lumenlearning.com/wmopen-concepts-statistics/chapter/assessing-the-fit-of-a-line-3-of-4/)
+
+- [Standard Error](https://courses.lumenlearning.com/wmopen-concepts-statistics/chapter/assessing-the-fit-of-a-line-4-of-4/)
+
+
+---
+class: center middle
+# Quiz
+
+---
+## Quiz 4
+
+In a study of 6-11 year old elementary school children, data shows a strong positive correlation between measures of physical coordination and math scores. For example, scores on arithmetic problems are strongly associated with the time it takes to run a 50-yard race, r = 0.83.
+
+- Identify explanatory, response, and potential lurking variables in this study. 
+
+- To improve arithmetic scores, should  the school require students to get exercise, like running? Why or Why not?
+
+
+---
+class: center middle
+# Lab Instructions in Excel
+
+---
+## Scatter Plots, $r$, Slope, $y$-intercept, $r^2$ and $s_e$
+
+- To create a scatter plot, first select the data sets, and then look for `Insert Scatter(X, Y)` in the menu `Insert`-> `Charts`.
+
+- The correlation coefficient $r$ can be calculated by the Excel function `correl()`.
+
+- The slope of a linear regression can be calculated by the Excel function `slope()`.
+
+- The $y$-intercept of a linear regression can be calculated by the Excel functio `intercept()`.
+
+- The coefficient of determination can be calculated by first finding $r$, then applying the formula `r^2`.
+
+- The standard error of the regression (residual standard error) can be calculated by the Excel function `steyx()`.

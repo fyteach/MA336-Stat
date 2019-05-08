@@ -1,0 +1,449 @@
+---
+title: "Types of Statistical Studies"
+subtitle: "MA336 Statistics<br/><br/>"
+author: "Fei Ye <br/><br/> Department of Mathematics and Computer Science<br/><br/>"
+date: "Spring 2019"
+output:
+  xaringan::moon_reader:
+    css: [default, default-fonts, "Assets/css/custom.css"]
+    mathjax: "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=TeX-MML-AM_HTMLorMML-full"
+    nature:
+      ratio: '16:9' # alternatives '16:9' or '4:3' or others e.g. 13:9
+      highlightStyle: github
+      countIncrementalSlides: false  
+      beforeInit: ["Assets/js/resize.js"]
+---
+```{r, echo=FALSE}
+knitr::opts_chunk$set(comment="#", fig.retina=2, crayon.enabled = TRUE)
+library(stats)
+library(kableExtra)
+library(knitr)
+library(formattable)
+library(ggplot2)
+library(ggthemes)
+library(ggExtra)
+library(dplyr,warn.conflicts = FALSE)
+```
+
+# Textbooks
+
+- [Concepts in Statistics](https://courses.lumenlearning.com/wmopen-concepts-statistics/)
+
+- [Introductory Statistics](https://open.umn.edu/opentextbooks/textbooks/introductory-statistics)
+
+---
+# Grading Policy
+
+|||
+|---|---|
+|Homework|10%|
+|Quizzes(Writing focused)|10%|
+|Writing Projects|20%|
+|Tests (3 highest)|30%|
+|Final Exam|30%|
+
+---
+# Learning goals for tatistical studies
+
+- Distinguish between a population and a sample.
+
+- Determine whether a study is an observational study or an experiment.
+
+- Determine the goal of a statistical study and what types of conclusions are appropriate.
+
+- Recognize typical forms of sampling biases such as convenience sample and voluntary response.
+
+- Explain why randomization should be used and describe how to implement a randomized design:  Simple random sample, Stratified random sample, Cluster random sample, Systematic random sample.
+
+---
+class: center middle
+
+# Statistical Studies
+
+---
+
+## The Big Picture
+
+.center[
+![A picture show how statistics works](Figures/Big-Picture.png)
+]
+
+
+
+Image source: [Concepts in Statistics (lumen learning)](https://courses.lumenlearning.com/wmopen-concepts-statistics/chapter/why-it-matters-why-it-matters-types-of-statistical-studies-and-producing-data/)
+
+
+---
+## Basic statistical concepts (1/3)
+
+- **Data** consists of information from observation, counts, measurements, responses or experiments.
+
+- A **population** is the collection of all objects that are of interest.
+
+- A **parameter** is a number that is a property of the population.
+
+- A **sample** is a subset of a population.
+
+- A **statistic** is a number, such as a percentage, that represents a property of a sample.
+
+- In statistics, a **variable** is a characteristic, or attribute of interest that we gather about individuals or objects. There are two types of variables according to their values.
+  - **Categorical variables** (or qualitative variables) represent attributes, labels or nonnumerical entries, such as names, and colors.
+  
+  - **Quantitative variables** represent numerical measurements or counts, such as weights and number of students in each class.
+
+---
+## Basic statistical concepts (2/3)
+
+- **Example:** Determine if the group is a population or sample
+
+  1. The grade of all students in a math class. 
+  2. 10 students in a math class earned "A".
+
+--
+
+- **Answer:** 
+  1. Population, 
+  2. Sample.
+
+--
+
+- **Example:** Identify statistic concepts in the following study: To learn the percentage of students go to school by public transportation, 500 students at a college were survey. 50% say they go to school by public transportation.<BR>
+
+--
+
+- **Answer:**
+    - Population: all students at the college <BR> 
+    - Sample: 500 being surveyed <BR>
+    - Parameter: unknown percentage <BR>
+    - Statistic: 50% 
+
+---
+## Basic statistical concepts (3/3)
+
+- **Example:** Identify the type variables.
+
+| Variable | Type |
+|---|---|
+|Age  | *Quantitative* |
+|Hair color|   *Qualitative*| 
+|GPA | *Quantitative* |
+| Education attainment (AS, BS, MS, etc.) | *Qualitative* |
+
+
+
+---
+## Types of statistical studies (1/2)
+
+- A statistical study can usually be categorized as an 
+  **observational study** or an **experiment** by the mean of study.
+  - An observational study observes individuals and measures variables of interest. The main purpose of an observational study is to describe a group of individuals or to investigate an association between two variables. 
+  
+  - An experiment intentionally manipulates one variable in an attempt to cause an effect on another variable. The primary goal of an experiment is to provide evidence for a cause-and-effect relationship between two variables.
+
+---
+## Types of statistical studies (2/2)
+
+
+- **Example:** Which type of study will answer the question.
+
+  1. what proportion of all college students in the United States have taken classes at a community college?
+  
+  2. Does use of computer-aided instruction in college math classes improve test scores?
+  
+-  **Answer:** 1. Observational, 2.experimental
+
+See [Types of Statistical Studies (2 of 4) in the textbook Concepts in Statistics](https://courses.lumenlearning.com/wmopen-concepts-statistics/chapter/types-of-statistical-studies-2-of-4/) for more examples.
+
+<!-- - Research questions that are commonly seen are usually categorized by the goal of the study: population or cause-and-effect. -->
+
+---
+## Questions about population (1/2)
+
+| **Type of Research Question**                                | **Examples**                                                 |
+| ------------------------------------------------------------ | ------------------------------------------------------------ |
+| **Make an estimate about the population** (often an estimate about an *average* value or a *proportion* with a given characteristic) | What is the *average* number of hours that community college students work each week? <br><br> What *proportion* of all U.S. college students are enrolled at a community college? | 
+| **Test a claim about the population** (often a claim about an *average* value or a *proportion* with a given characteristic) | Is the *average* course load for a community college student greater than 12 units? <br><br> Do the *majority* of community college students qualify for federal student loans? |
+
+
+---
+## Questions about population (2/2)
+
+
+| **Type of Research Question**                                | **Examples**                                                 |
+| ------------------------------------------------------------ | ------------------------------------------------------------ |
+| **Compare two populations** (often a comparison of population averages or proportions with a given characteristic) | In community colleges, do female students have a *higher* GPA than male students? <br><br> Are college athletes *more* likely than nonathletes to receive academic advising? |     
+| **Investigate a relationship** between two variables in the population | Is there a *relationship* between the number of hours high school students spend each week on Facebook and their GPA? <br><br> Is academic counseling *associated* with quicker completion of a college degree? | 
+
+
+---
+## Question on cause-and-effect (1/2)
+
+- A research question that focuses on a cause-and-effect relationship is common in disciplines that use experiments, such as medicine or psychology.
+  -    Does cell phone usage increase the risk of developing a brain tumor?
+  -    Does drinking red wine lower the risk of a heart attack?
+
+- In a study of a relationship between two variables, one variable is the **explanatory variable**, and the other is the **response variable**. 
+
+- To establish a cause-and-effect relationship, we want to make sure the explanatory variable is the only thing that impacts the response variable. 
+
+- We therefore get rid of all other factors that might affect the response. These factors are called **confounding variables**. For example, taking a medicine could be a confounding variable in the second question above.
+
+---
+## Question on cause-and-effect (2/2)
+
+**Example:** Determine if the question is a cause-and-effect question? What are the explanatory and response variables?
+  1. Does use of computer-aided instruction in college math classes improve test scores?
+  2. Does tutoring correlate with improved performance on exams?
+
+**Answer:** 
+
+  1. This question investigate a cause-and-effect relationship. The explanatory variable is computer-aided instruction and the response variable is the test scores.
+  2. This question investigate a correlation between variables in a population and is not a cause-and-effect question. The explanatory variable is tutoring and the response variable is the performance. 
+
+---
+## Appropriate conclusions of a study (1 of 2)
+
+- ***In general, we should not make cause-and-effect statements from observational studies unless impact of confounding variables can be significantly decreased.***
+
+
+- **Example:** A researcher studies the medical records of 500 randomly selected patients. Based on the information in the records, he divides the patients into two groups: those given the recommendation to take an aspirin every day and those with no such recommendation. He reports the percentage of each group that developed heart disease.
+
+  Determine whether the study supports the conclusion that taking aspirin lowers the risk of heart attacks.
+
+<!-- - Study 1:  -->
+
+<!-- - Study 2: A researcher studies 500 patients who visited a regional hospital. He randomly assigns 250 patients to take aspirin every day and 250 to take a placebo that looks like aspirin. At the end of 5 years he reports the percentage of each group that developed heart disease. -->
+
+<!-- --- -->
+<!-- ## Appropriate conclusions of a study (2 of 2) -->
+
+
+- **Answer:** The conlusion claims a cause-and-effect relationship. To answer the question, we need an experimental study. However, the study has no control on data which makes it inappropriate. 
+
+
+
+<!-- Some key words might be used to determine a conlusion of a study is appropriate -->
+
+<!-- |Type of study| Key words | -->
+<!-- |---|---| -->
+<!-- |Observational | Survey, Compare| -->
+<!-- |Experimental | Expriement, Control, Administrated | -->
+
+
+
+---
+## Sampling plans
+
+To make accurate inference, the sample must be representative of the population.
+
+- A **sampling plan** describes exactly how we will choose the sample.
+
+- A sampling plan is **biased** if it systematically favors certain outcomes.
+
+- In **random Sampling**, every individual or object has an equal chance of being selected.
+
+
+---
+## Methods of random sampling (1/2)
+
+- **Simple random sample**: groups of the same size are randomly selected. Table of random numbers, calculator and softwares are often used to generate random numbers.
+.center[ ![Random Table](Figures/simple-random-sample.png)]
+
+
+- **Stratified random sample**: The population is first split into groups. Then subjects from each group are selected randomly.
+.center[ ![Stratified Sample](Figures/Stratified-Random-Sample.png)]
+
+
+???
+Show how to generate a random number using the Excel function **RANDBETWEEN()**
+
+---
+## Methods of random sampling (2/2)
+
+- **Cluster sample**: The population is first split into groups. Then some groups are selected randomly.
+.center[ ![Cluster Sample](Figures/Cluster-Sample.png)]
+
+
+- **Systematic sample**: First, a starting number is chosen randomly. Then take every $n$-th piece of the data.
+.center[ ![Systematic Sample](Figures/Systematic-Sample.png)]
+
+
+---
+## Bad sampling
+
+- Biased sampling
+  - Online polls. These are examples of a voluntary response sample.
+  - Mall surveys. These  are an example of a convenience sample.
+
+ [See Sampling (1 of 2) in the textbook for examples](https://courses.lumenlearning.com/wmopen-concepts-statistics/chapter/sampling-1-of-2/) 
+
+- Undercoverage
+  - It occurs when some groups in the population are left out of the process of choosing a sample. For example, random survey math students to estimate the average GPA or a college.
+
+<!-- --- -->
+<!-- ## Appropriate sampling design (1/2) -->
+
+<!-- **Example:**  A sociologist wants to investigate the question, "Is there a relationship between texting during class and grade-point-average (GPA) among high school seniors in a large district?" -->
+
+<!-- Which study design is most appropriate? -->
+
+
+<!-- 1. <font size="2"> Before the semester starts, randomly select 40 seniors from each high school who do not text during class. Assign 20 to the texting treatment group (text three or more times during every class meeting) and 20 to the control group (no texting during class). At the end of the semester, obtain each student's GPA from the appropriate admissions and records office. Compare the GPA of students who routinely text during class to the GPA of students who do not text during class. </font> -->
+
+<!-- 2. <font size="2"> Obtain the cell phone numbers of all seniors in the district. Send a text survey to each student asking about the student's texting habits during class. Obtain each student's GPA from the appropriate admissions and records office. Compare the GPA of students who routinely text during class to the GPA of students who do not text during class. </font> -->
+
+<!-- 3. <font size="2"> Obtain a list of seniors in the high school district. Randomly select 300 seniors and survey them about their texting habits during class. Obtain each student's GPA from the appropriate admissions and records office. Compare the GPA of students who routinely text during class to the GPA of students who do not text during class.  </font> -->
+
+<!-- -- -->
+
+
+---
+## Appropriate sampling design
+
+- **Example**: Suppose that you want to estimate the proportion of students at your college that use the library.
+
+  Which sampling plan will produce the most reliable results?
+  
+  1. Select 100 students at random from students in the library.
+  
+  2. Select 200 students at random from students who use the Tutoring Center.
+  
+  3. Select 300 students who have checked out a book from the library.
+  
+  4. Select 50 students at random from the college. 
+
+- **Answer:** The 4th sampling plan is the most reliable plan. The first three and undercover the college. 
+
+
+In general, the larger sample size, the more accurate of conclusion. However, we have to avoid bad sampling.
+
+---
+## Elements of experimental design (1/2)
+
+- **Control** reduces the effects of extraneous variables (i.e., variables other than the independent variable and the dependent variable). These extraneous variables are called lurking variables. 
+
+- Three control strategies are control groups, placebos, and blinding.
+
+  - A **control group** is a baseline group that receives no treatment or a neutral treatment. 
+
+  - A neutral treatment that has no "real" effect on the dependent variable is called a **placebo**, and a participant's positive response to a placebo is called the **placebo effect**. 
+
+  - **Blinding** is the practice of not telling participants whether they are receiving a placebo. **Double-blinding** is the practice of not telling both  both the participants and the researchers which group receiving a treatment or a placebo.
+
+---
+## Elements of experimental design (2/2)
+
+- **Randomization** ensures that this estimate is statistically valid.
+
+  - With random assignment, we can be fairly confident that any differences we observe in the response of treatment groups is due to the explanatory variable.
+
+- **Replication** reduces variability in experimental results and increases their significance. 
+
+  - Although randomization helps to insure that treatment groups are as similar as possible, the results of a single experiment, applied to a small number of objects or subjects, should not be accepted without question.  
+  - Any good experiment should be reproducible, and in particular, replication should yield similar results.
+
+???
+Confounding variable vs lurking variable
+
+- A confounding variable has at least a partial effect on the response variable.
+
+- **Example:** In the study of the relation between a type ferterlizer and tomato size, the amount of sunshine will be a confounding variable. It contributes to the growth of tomato.
+
+
+- A lurking variable has an effect on both the explanatory and the response variables. 
+
+- **Example:** People find that there is a positive association between number of firefighters and amount of damage. However, both are affected the size of fire.
+
+---
+class: center middle
+
+# Exercises
+
+---
+## Exercises
+
+1. Read the textbook and try exercises 
+
+  - [Types of Statistical Studies](https://courses.lumenlearning.com/wmopen-concepts-statistics/chapter/types-of-statistical-studies-2-of-4/)
+  
+  - [Sampling](https://courses.lumenlearning.com/wmopen-concepts-statistics/chapter/sampling-1-of-2/)
+
+2. Find an example of a statistical study about relationship and design a sampling plan. (Pease write on a piece of paper and submit before you leave the classroom)
+
+
+---
+class: center middle
+
+# Lab Instructions in Excel
+
+---
+## Random numbers by Excel (1/2)
+
+- **Example:** Randomly generate a 3 digits number.
+
+  - Step 1: Choose a cell, say `A1`
+  
+  - Step 2: click insert function button $f_x$.
+  
+  - Step 3: In the popup window, search "random" and select **RANDBETWEEN**.
+  
+  - Step 4: In the new window, entry 100 for the bottom and 999 for the top and click OK.
+
+
+- Alternatively, you may also manually enter the function: `=randbetween(100, 999)` in the cell and hit enter.
+
+
+---
+## Random numbers by Excel (1/2)
+
+- **Example:** Generate 10 random numbers of 2 digits.
+
+  - Step 1: Generate a random numbers, say in the cell `A1`, using the Excel function `randbetween()`.
+  
+  - Step 2: Move the mouse cursor to the lower right corner of the cell `A1`. A solid plus `+` will appear.
+  
+  - Step 3: Hold the left-click of the mouse and drag the cell to horizontally or vertically to get 10 numbers.
+
+---
+## Table in Excel
+
+- **Insert a table**
+
+  - Step 1: In the menu bar, select Insert.
+  
+  - Step 2: Look for Table and click it.
+  
+  - Step 3: In the popup windows, you may enter the two diagonal cell locators. For that, press Shift and select the two diagonal cells of you table.
+  
+  - Step 4: Click OK. You will see the table.
+
+- **Remark:** Tables are normally used for more than one variables, that are characteristic or attributes
+being studied, such as attendance rate and grade. In table, a column is usually used to put entries of a data set for a certain variable. Rows are used as labels of individual entries.
+
+---
+## Insert or delete cells
+
+- **Insert or delete cells, rows or columns**
+
+  - Step 1: Highlight by left clicking the cell(s), row, or column that you want to insert or delete. 
+  
+  - Step 2: Right-click the highlighted cell, row or column
+  
+  - Step 3: In the popup window, select intert or delete and follow the intruction.
+
+---
+## Install the Analysis ToolPak
+
+- We will use analysis toolpak frequently for analyzing data.
+
+- To install the add-in `The Analysis ToolPak`:
+
+  - Step 1: In the Excel menu bar, select Home.
+  
+  - Step 2: Choose and click options
+  
+  - Step 3: In the popup window, choose and click Add-ins.
+  
+  - Step 4: In the new display, look for Manage: Excel Add-ins and click Go next to it.
+  
+  - Step 5: In the new popup windows, select The Analysis ToolPak and then click the OK button.
