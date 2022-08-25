@@ -1,0 +1,217 @@
+---
+title: "Confidence Intervals for Median"
+subtitle: "MA336 Statistics<br/><br/>"
+author: "Fei Ye <br/><br/> Department of Mathematics and Computer Science<br/><br/>"
+date: '`r format(Sys.time(), "%B %Y")`'
+output:
+  xaringan::moon_reader:
+    self_contained: yes
+    mode: selfcontained
+    css: [default, default-fonts, "Assets/css/custom.css"]
+    mathjax: "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=TeX-MML-AM_HTMLorMML-full"
+    nature:
+      ratio: '16:9' # alternatives '16:9' or '4:3' or others e.g. 13:9
+      highlightStyle: github
+      countIncrementalSlides: false  
+      beforeInit: ["Assets/js/resize.js"]
+---
+
+```{r, echo=FALSE, warning=FALSE}
+knitr::opts_chunk$set(comment="#", fig.retina=2, crayon.enabled = TRUE, dpi=600)
+set.seed(15)
+library(stats)
+library(kableExtra)
+library(knitr)
+library(formattable)
+library(ggplot2)
+library(ggthemes)
+library(ggExtra)
+library(dplyr,warn.conflicts = FALSE)
+library(animation)
+library(gifski)
+library(latex2exp)
+# library(learnr)
+xaringanExtra::use_fit_screen()
+```
+
+```{css, echo=F}
+.remark-slide table, .remark-slide table thead th {
+    border-top: 0px;
+    border-bottom: 0px;
+}
+.remark-slide thead, .remark-slide tr:nth-child(even){
+  background-color: white;
+}
+table{
+  border-collapse: collapse;
+}
+.remark-slide thead:empty {
+  display: none;
+}
+```
+
+## Learning Goals for Confidence Intervals
+
+- Construct and interpret a confidence interval for one population median.
+
+---
+
+## Order Statistics
+
+Suppose $X_1$, $\dots$, $X_n$ is a sample of independent values from a population. The order statistics $X_{(1)}$, $\dots$, $X_{(n)}$ is an ascending ordered arrangement of the sample. The value $X_{(i)}$ is called the $i$-th order statistic.
+
+```{r echo=FALSE}
+petal <- sample(iris$Petal.Length,10)
+```
+
+**Example:**
+
+Find the $7$-th order statistic of the following sample of iris petal length
+
+`r petal`
+
+**Solution:**
+
+Rearranging the sample in ascending order yields
+
+`r sort(petal)`
+
+The $7$-th order statistic is `r sort(petal)[7]`, the 7-th value in this ordered set.
+
+---
+
+## Distribution-Free Confidence Intervals for Medians: Method (1/2)
+
+Suppose $m$ is the median of the population. Fixed a confidence level $1-\alpha$ and the size $n$ of samples, We are looking for $i$ and $j$ so that the probability $P(X_{(i)}\le m\le X_{(j)})$ of $m$ being contained in the interval $[X_{(i)}, X_{(j)}]$ of a random sample is $1-\alpha$. For symmetric reason, we may take $j=n+1-i$.
+
+The probability that the interval $[X_{(k)}, X_{(k+1)}]$ of a ransom sample contains the median $m$ is equivalent to that exactly $k$ values in the sample are no greater than the population median. Denote by $Z$ the number of $X_i$ with $X_i\le m$. Then $Z$ is a binomial random variable  with $n$ mutually independent trials and probability of success $p=P(X_i\le m)=0.5$.
+Then
+$$P(X_{(k)}\le m\le X_{(k+1)}=P(Z=k)={n\choose k}p^k(1-p)^{n-k}={n\choose k}\left(\frac12\right)^n,$$
+and
+$$1-\alpha=P(X_{(i)}\le m\le X_{(n+1-i)})=\sum\limits_{k=i}^{n+1-i}P(Z=k)=\sum\limits_{k=i}^{n+1-i}{n\choose k}\left(\frac12\right)^n.$$
+
+---
+
+## Distribution-Free Confidence Intervals for Medians: Method (2/2)
+
+To determine $i$ for a given $n$, we need to calculate the cumulated probability $\sum\limits_{k=i}^{n+1-i}P(Z=k)$ for the binomial variable $Z$.
+
+```{r echo=FALSE}
+Lb <- 5:20
+Ub <- 5:20
+Pb <- 5:20
+PbTest <- 5:20
+
+for (k in 5:20) {
+Lb[k] <- qbinom(0.025, k, 0.5)+1
+Ub[k] <- k+1-Lb[k]
+PbTest[k] <- round(pbinom(Ub[k], k, 0.5)-pbinom(Lb[k]-1, k, 0.5), 3)
+if (PbTest[k]<0.95) {
+  Lb[k] <- Lb[k]-1 
+  Ub[k] <- Ub[k]+1
+} 
+Pb[k] <- round(pbinom(Ub[k], k, 0.5)-pbinom(Lb[k]-1, k, 0.5), 3) 
+}
+```
+
+.pull-left[
+| $n$ | CI | Probability |
+|:---:|:---:|:---:|
+| 5 | $[X_{(`r Lb[5]`)}, X_{(`r Ub[5]`)}]$ | `r Pb[5]` |
+| 6 | $[X_{(`r Lb[6]`)}, X_{(`r Ub[6]`)}]$ | `r Pb[6]` |
+| 7 | $[X_{(`r Lb[7]`)}, X_{(`r Ub[7]`)}]$ | `r Pb[7]` |
+| 8 | $[X_{(`r Lb[8]`)}, X_{(`r Ub[8]`)}]$ | `r Pb[8]` |
+| 9 | $[X_{(`r Lb[9]`)}, X_{(`r Ub[9]`)}]$ | `r Pb[9]` |
+| 10 | $[X_{(`r Lb[10]`)}, X_{(`r Ub[10]`)}]$ | `r Pb[10]` |
+| 11 | $[X_{(`r Lb[11]`)}, X_{(`r Ub[11]`)}]$ | `r Pb[11]` |
+| 12 | $[X_{(`r Lb[12]`)}, X_{(`r Ub[12]`)}]$ | `r Pb[12]` |
+]
+.pull-left[
+| $n$ | CI | Probability |
+|:---:|:---:|:---:|
+| 13 | $[X_{(`r Lb[13]`)}, X_{(`r Ub[13]`)}]$ | `r Pb[13]` |
+| 14 | $[X_{(`r Lb[14]`)}, X_{(`r Ub[14]`)}]$ | `r Pb[14]` |
+| 15 | $[X_{(`r Lb[15]`)}, X_{(`r Ub[15]`)}]$ | `r Pb[15]` |
+| 16 | $[X_{(`r Lb[16]`)}, X_{(`r Ub[16]`)}]$ | `r Pb[16]` |
+| 17 | $[X_{(`r Lb[17]`)}, X_{(`r Ub[17]`)}]$ | `r Pb[17]` |
+| 18 | $[X_{(`r Lb[18]`)}, X_{(`r Ub[18]`)}]$ | `r Pb[18]` |
+| 19 | $[X_{(`r Lb[19]`)}, X_{(`r Ub[19]`)}]$ | `r Pb[19]` |
+| 20 | $[X_{(`r Lb[20]`)}, X_{(`r Ub[20]`)}]$ | `r Pb[20]` |
+]
+
+---
+
+## Distribution-Free Confidence Intervals for Medians by Normal Approximation
+
+When $n>21$, the binomial distribution $Z$ is approximately normal with the mean $\mu=np=0.5n$ and the standard deviation $\sigma=\sqrt{np(1-p)}=\sqrt{0.25n}$.
+
+Then the confidence interval $[X_{(i)}, X_{(j)}]$ at the confidence level $1-\alpha$ is approximately given by
+$$i=\lfloor \mu-z_{\alpha/2}\sigma \rfloor=\lfloor 0.5n-z_{\alpha/2}\sqrt{0.25n}\rfloor$$
+$$j=\lceil \mu+z_{\alpha/2}\sigma\rceil=\lceil 0.5n+z_{\alpha/2}\sqrt{0.25n}\rceil.$$
+
+???
+See the discussion on the central limit theorem for median.
+<https://stats.stackexchange.com/questions/45124/central-limit-theorem-for-sample-medians?noredirect=1&lq=1>
+
+---
+
+## Example: Median House Price (1/2)
+
+The following are prices (in thousands) of 24 randomly selected houses in a certain city. Find a confidence interval for the median hourse price in that city.
+
+```{r echo=FALSE}
+house <- c(1500, 929, 745, 1350, 1100, 1600, 1240, 808, 1880, 1090, 1430, 5600, 3360, 988, 949, 899, 1150, 1500, 2000, 2450, 2480, 1140, 1190,1130)
+house <- sort(house)
+house.df=matrix(house,ncol=12,byrow=TRUE)
+house.df <- as.data.frame(house.df)
+
+kable(house.df, col.names = NULL, escape = F, align = "c", "html", booktabs = T) %>%
+  kable_styling()
+```
+
+**Solution:**
+
+Since the size of the sample is 24, we may use the normal approximation to get the confidence intervals. The mean and standard deviation for the normal approximation of the binomial distribution with the success rate $p=0.5$ and $n=24$ trials are $\mu=np=12$, $\sigma=\sqrt{np(1-p)}=\sqrt{6}$. At the $1-\alpha=95\%$ confidence level, the $z$-score $z_{\alpha/2}$ is approximately 1.96.
+
+---
+
+## Example: Median House Price (2/2)
+
+**Solution: (Continued)**
+Then the orders of the bounds of the confidence interval are
+
+```{r echo=FALSE}
+li<-floor(12-1.96*sqrt(6))
+ui<-ceiling(12+1.96*sqrt(6))
+```
+
+$$i=\lfloor 12-1.96*\sqrt{6} \rfloor \approx `r li`,$$
+$$j=\lceil 12+1.96*\sqrt{6}\rceil \approx `r ui`.$$
+
+Then $X_{(`r li`)}$ is `r house[li]` and $X_{(`r ui`)}$ is `r house[ui]`.
+The confidence interval can be taken as $[`r house[li]`, `r house[ui]`]$. 
+
+The probability that $m$ is in this interval is
+$$P(X_{(`r li`)}\le m\le X_{(`r ui`)})\approx `r prob<-round(pbinom(ui, 24, 0.5)-pbinom(li-1, 24, 0.5), 3); prob`.$$
+
+We are $`r 100*prob`\%$ confidence that the median house price of this city is between `r house[li]` and `r house[ui]`.
+
+---
+class: center middle
+
+# Lab Instructions in Excel
+
+---
+
+## Excel Functions for Normal Distributions and Marginal Errors
+
+- Let $Z$ be a standard normal random varaible. In Excel, $P(Z<z)$ is given by `NORM.S.DIST(z,TRUE)`.
+
+- Let $X$ be a normal random variable with mean $\mu$ and standard deviation $\sigma$, that is $X\sim \mathcal{N}(\mu, \sigma^2)$. In Excel, $P(X<x)$ is given by `NORM.DIST(x,mean,sd,TRUE)`.
+
+- When a cumulative probability $p=P(X<x)$ of a normal random variable $X$ is given, we can find $x$ using `NORM.INV(p,mean,sd)`.
+
+- When a cumulative probability $p=P(Z<z)$ of a standard normal random variable $Z$ is given, we can find $z$ using `NORM.S.INV(p)`.
+
+- If a sample of size $n$ has the proportion $\hat{p}=phat$ and the sampling distribution is approximately normal, the marginal error for the proportion can be obtained by the Excel function
+`CONFIDENCE.NORM(1-confidence level, SQRT(phat*(1-phat)/n), n)`

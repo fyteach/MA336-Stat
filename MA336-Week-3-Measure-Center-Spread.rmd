@@ -1,0 +1,588 @@
+---
+title: "Measure of Centeral Tendency and Variability"
+subtitle: "MA336 Statistics<br/><br/>"
+author: "Fei Ye <br/><br/> Department of Mathematics and Computer Science<br/><br/>"
+date: '`r format(Sys.time(), "%B %Y")`'
+output:
+  xaringan::moon_reader:
+    self_contained: yes
+    mode: selfcontained
+    css: [default, default-fonts, "Assets/css/custom.css"]
+    mathjax: "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=TeX-MML-AM_HTMLorMML-full"
+    nature:
+      ratio: '16:9' # alternatives '16:9' or '4:3' or others e.g. 13:9
+      highlightStyle: github
+      countIncrementalSlides: false  
+      beforeInit: ["Assets/js/resize.js", "Assets/js/MoMResize.js"]
+---
+```{r, echo=FALSE, warning=FALSE}
+knitr::opts_chunk$set(comment="#", fig.retina=2)
+library(stats)
+library(kableExtra)
+library(knitr)
+library(formattable)
+library(ggplot2)
+library(ggthemes)
+library(ggExtra)
+library(data.table)
+library(dplyr, warn.conflicts = FALSE)
+library(plotly, warn.conflicts = FALSE)
+# library(rroughviz)
+xaringanExtra::use_fit_screen()
+set.seed(3)
+load("Data-Frames-SUNY-Concepts-in-Statistics/actor.RData")
+```
+
+## Learning goals
+
+- Create and interpret boxplots as a means of summarizing non-symmetric data.
+
+- Calculate and explain the purpose of measures of centers (mean, median), variability (standard deviation, interquartile range).
+
+- Explain the impact of outliers on summary statistics such as mean, median and standard deviation.
+
+---
+class: center middle
+
+# Quatiles and Boxplot
+
+---
+
+## Median, Quartiles, Interquartile Range and Outliers
+
+- The three **quartiles**, $Q_1$, $Q_2$, and $Q_3$ are numbers in an ordered data set that divide the data set into four equal parts. The second quartile is known as the **median**.
+
+- **Interquartile Range (IQR for short)** is the measure of variation when using the median to measure center. It is defined as the difference of the third and the first quartiles: $\text{IQR}=Q_3-Q_1$.
+
+- When the center and the spread are measured by the median and the IQR, a value in the data is considered an **outlier** if the value is
+  - less than the lower fence $\text{fence}_{lower}=Q_1 − 1.5 \cdot \text{IQR}$
+   or
+  - greater than the upper fence $\text{fence}_{upper}=Q_3 + 1.5 \cdot \text{IQR}$.
+
+  **Note:** An outlier in this definition is also called a **mild outlier**. An outlier that is less than the extreme lower fence $\text{extreme fence}_{lower}=Q_1 - 3 \cdot \text{IQR}$ or greater than the extreme upper fence $\text{extreme fence}_{upper}=Q_3 + 3 \cdot \text{IQR}$ is also called **extreme outlier**.
+
+- The minimum, $Q_1$, $Q_2$, $Q_3$ and maximum are known as the "**five-number summary**" of the data set.
+
+- The difference of maximum and minimum is called the **range**.
+  
+---
+
+## Example: Median, IQR and Outliers
+
+Find the median, quartiles, IQR and outliers (if they exist) of the sample height of 15 trees.
+
+.center[
+```{r echo=FALSE, results = 'asis'} 
+cat(paste(as.vector(head(trees$Height,15)), collapse=", "))
+```
+]
+
+--
+
+**Solution:**
+
+- Sort the data set from small to large.
+.center[
+```{r echo=FALSE, results = 'asis'} 
+cat(paste(sort(as.vector(head(trees$Height,15))), collapse=", "))
+```
+]
+- Find the median $Q_2$. The sample size is 15. The middle of the ordered data set is the $\lceil 15/2 \rceil=8$-th number which is 75.
+- Find $Q_1$ and $Q_3$. $Q_1$ is the median of the numbers less than the median. $Q_3$ is the median of the number greater than the median. In this example, $Q_1$ is the 4-th number 69. $Q_3$ is the 4-th to the last, that is 79.
+- $\text{IQR}=Q_3-Q_1=79-69=10$.
+- Since $Q_1-1.5\text{IQR}=69-1.5\cdot 10=54$ and $Q_3+1.5\text{IQR}=79-1.5 \cdot 10=94$, there is no outlier in this sample.
+
+---
+
+## Practice: Five-number Summary, Range and IQR
+
+.embedwrap[
+`r knitr::include_url('https://www.myopenmath.com/embedq2.php?id=899254&seed=2020&showansafter', height='550px')`
+]
+
+---
+
+## Box Plot
+
+- A **box plot** shows a "five-number summary" of the data set. It contains a box, two whiskers and dots (for outliers).
+
+- To create the boxplot for a distribution,
+  
+  - Draw a box from $Q_1$ to $Q_3$.
+  
+  - Draw a vertical line in the box at the median.
+  
+  - Extend a tail from $Q_1$ to the smallest value that is not an outlier and from $Q_3$ to the largest value that is not an outlier.
+  
+  - Indicate outliers with a solid dot.
+
+---
+
+## Example: Box plot - ages of best oscar winners (1/2)
+
+Create the boxplot for the ages of 32 best actor oscar winners (1970–2001).
+
+.center[
+```{r echo=FALSE, results = 'asis'} 
+cat(paste(sort(actor_age$Age), collapse=", "))
+```
+]
+
+--
+
+**Solution:** We may use Excel to find the five-number summary.
+
+- The quartiles are 
+  $$Q_2=42.5,\quad Q_1=37.5,\quad Q_3=49.5.$$
+  The interquartile range and the bounds for mild outliers are
+  $$\text{IQR}=12, \quad Q_1-1.5\text{IQR}= 19.5, \quad Q_3+1.5\text{IQR}=67.5.$$
+
+- The smallest number that is not an outlier is 31. The largest number that is not an outlier is 61. Those two numbers bound the whiskers.
+
+- The number 76 is a mild outlier because
+  $$Q_3+1.5\text{IQR}< 76 < Q_3+3\text{IQR}.$$
+
+---
+
+## Example: Box plot - ages of best oscar winners (2/2)
+
+**Solution: (continued)**
+
+- The boxplot is shown below.
+
+.center[
+```{r echo=FALSE, results = 'asis', fig.width=12, fig.asp=0.4} 
+# load("Data-Frames-SUNY-Concepts-in-Statistics/actor.rdata")
+
+boxplot1<-ggplot(actor_age, aes(x="", y=Age)) +
+  # stat_boxplot(geom = "errorbar") +
+  geom_boxplot(outlier.size=5) +
+  scale_y_continuous(breaks = c(31, 37.5, 42.5, 49.5, 61, 76)) +
+  theme_classic(base_size = 16) +
+  xlab("") + 
+  coord_flip() +
+  theme(# panel.border=element_blank(), 
+        axis.line.x = element_line(size = 1.2),
+        axis.line.y = element_blank(),
+        axis.ticks.y = element_blank(),
+        axis.text.y=element_blank())
+
+ggplotly(boxplot1)
+```
+]
+
+---
+
+## Practice: five-number summary from the boxplot
+
+`r knitr::include_url('https://www.myopenmath.com/embedq2.php?id=899261&seed=5824&showansafter&height=550px&frame_id=boxplot', height='550px')`
+
+---
+class: center middle
+
+# Mean and Standard Deviation
+
+---
+
+## Notations and Calculations about Mean
+
+- Sigma notation: in math, we denote the sum of values  $x_1$, $x_2$, $\dots$, $x_n$ of a variable $x$ by $\sum\limits_{i=1}^n x_i$ or simply by $\sum x$.
+
+- The **population mean** is $\mu= \frac{\sum x}{N}$, where $N$ is the **population size**, i.e the number of elements in the population.  
+
+    The notation $\mu$ reads as mu.
+
+- The **sample mean** is $\bar{x}=\frac{\sum{x}}{n}$, where $n$ is the **sample size**. The notation $\bar{x}$ reads as $x$--bar.
+
+---
+
+## Example: Mean city mpg
+
+Find the mean city mpg for a sample of 10 cars.
+.center[
+```{r echo=FALSE, results = 'asis'} 
+cat(paste(head(mpg$cty,10), collapse=", "))
+```                      
+]
+
+--
+
+**Solution:** The mean is
+
+$$\bar{x}=\frac{18+21+20+21+16+18+18+18+16+20}{10}=18.6.$$
+
+The mean mpg of the 10 cars is 18.6 mpg.
+
+---
+
+## Weighted Mean
+
+- The weighted mean of a set of numbers $\{x_1, \dots, x_n\}$ with weights $w_1$, $w_2$, ..., $w_n$ is defined as  $$\frac{\sum w_ix_i}{\sum w_i}.$$
+
+- The mean of a frequency table is weighted mean $\bar{x}=\frac{\sum f x}{n}$, where $x$ is an element with frequency $f$ and $n$ is the sample size.
+
+---
+
+## Example: Course overall grade
+
+In a course, the overall grade is determined in the following way: the homework average counts for 10%, the quiz average counts for 10%, the test average counts 50% , and the final exam counts for 30%. What's the overall grade of the student who earned  92 on homework, 95 on quizzes, 90 on tests and 93 on the final.
+
+--
+
+**Solution:** The overall grade is the weighted mean
+
+$$\frac{\sum w_ix_i}{\sum w_i}=\frac{0.1\cdot 92+0.1\cdot 95+0.5\cdot 90+0.3\cdot 93}{0.1+0.1+0.5+0.3}=91.6.$$
+
+???
+Show how to use Excel
+
+---
+
+## Practice: Mean petal width
+
+Find the average petal width for a sample of  10 iris followers.
+  
+.center[
+```{r echo=FALSE, results = 'asis'} 
+cat(paste(as.vector(sample(iris$Petal.Width,10)), collapse=", "))
+```
+]
+
+---
+
+## Practice: Calculate a mean using the weighted mean formula
+
+Find the mean from the dot plot of sepal length for a sample of 10 iris flowers.
+.center[
+```{r echo=FALSE, results = 'asis', fig.width=8, fig.asp=0.2} 
+# use the preloaded iris package in R
+dfirisSL <- head(iris["Sepal.Length"],10)
+# find the max frequency (used `dplyr` package)
+yheightSL <- max(count(dfirisSL, Sepal.Length)["n"])
+sepalmin <- min(dfirisSL)
+sepalmax <- max(dfirisSL)
+# basic dotplot (binwidth = the accuracy of the data)
+irisPL = ggplot(dfirisSL, aes(x=Sepal.Length), dpi = 600)
+irisPL = irisPL + geom_dotplot(binwidth=0.1, method="histodot", dotsize = 0.6, fill="blue")
+# use coor_fixed(ration=binwidth*dotsize*max frequency) to setup the right y axis height.
+irisPL = irisPL + theme_bw() + coord_fixed(ratio=0.1*0.6*yheightSL)
+# tweak the theme a little bit
+irisPL = irisPL + theme(
+  panel.background=element_blank(),
+  panel.border = element_blank(),
+  panel.grid.minor = element_blank(),
+  # plot.margin=unit(c(-4,0,-4,0), "cm"),
+  axis.line = element_line(colour = "black"),
+  axis.line.y = element_blank(),
+)
+# add more tick mark on x axis
+irisPL = irisPL + scale_x_continuous(breaks = seq(sepalmin,sepalmax,0.1))
+# add tick mark on y axis to reflect frequencies. Note yheightSL is max frequency.
+irisPL = irisPL + scale_y_continuous(limits=c(0, 1), expand = c(0, 0), breaks = seq(0, 1,1/yheightSL), labels=seq(0,yheightSL))
+# remove x y lables and remove vertical grid lines
+irisPL = irisPL + labs(x=NULL, y=NULL) + removeGridX()
+irisPL
+```
+]
+
+
+<!-- 
+Practice: Estimate the mean from a histogram
+
+Estimate the average highway mpg using the histogram of a sample of 20 cars.
+
+.center[
+```{r echo=FALSE, results = 'asis', fig.width=8, fig.asp=0.3} 
+# determine the sample size
+s <- 20
+# select the sample
+mpghwy <- head(mpg["hwy"],s)
+# determine the number of bins using log rule
+nbins <- ceiling(1+log2(s))
+# find max, min, start point, end point and bin width
+minhwy <- min(mpghwy)
+maxhwy <- max(mpghwy)
+starthwy <- minhwy-0.5
+bwidth<-ceiling((maxhwy-minhwy)/nbins)
+endhwy <- starthwy + bwidth*nbins
+# find the max and min frequencies
+histdata <- hist(mpghwy$hwy, breaks=seq(starthwy, endhwy, bwidth), plot=FALSE, right=FALSE)
+maxfreq <- max(histdata$count)
+minfreq <- min(histdata$count)
+# Basic histogram plot
+ggplot(mpghwy, aes(x=hwy), dpi=600) +
+geom_histogram(binwidth=bwidth,boundary=starthwy,
+                 fill="lightblue", col="white",size=1) +
+# add the density curve
+#  stat_density(aes(y=4*..count..), geom="line",             colour="blue", linetype="dashed", size=1, adjust=1.2) +
+# add the mean vertical line
+# geom_vline(aes(xintercept=mean(hwy)),       color="blue", linetype="dashed", size=1) +
+# add bin limits to x axis
+scale_x_continuous(breaks = seq(starthwy, endhwy, bwidth/2)) +
+# add frequency ticks to y axis
+scale_y_continuous(breaks = seq(minfreq, maxfreq, 1)) +
+# change font size and remove minor grid
+theme_bw(base_size = 12) +
+theme(panel.grid.minor = element_blank()) +
+# change labels for x and y axis
+xlab("highway mpg") + 
+ylab("Frequency")
+```
+] 
+-->
+
+---
+
+## Practice: Weighted mean - calculate final grade
+
+<div style="overflow: visible;">
+`r knitr::include_url('https://www.myopenmath.com/embedq2.php?id=279978&seed=2020&showansafter', height='550px')`
+</div>
+
+---
+
+## Measure of Variation about Population Mean
+
+- The **deviation** of an entry $x$ in a population data set is the difference $x-\mu$, where $\mu$ is the mean of the population.
+  
+- The **population variance** of a population of $N$ entries is defined as
+  $$
+    \text{VAR.P}=\sigma^2=\dfrac{\sum(x-\mu)^2}{N}.
+  $$
+
+- The **population standard deviation** is
+  $$
+    \text{STDEV.P}=\sigma=\sqrt{\dfrac{\sum(x-\mu)^2}{N}}.
+  $$
+
+---
+
+## Measure of Variation about Sample Mean
+
+- The **deviation** of an entry $x$ in a sample data set is the difference $x-\bar{x}$, where $\bar{x}$ is the mean of the sample.
+
+- The **sample variance** and **sample standard deviation** are defined similarly
+  $$
+    \text{VAR.S}=s^2=\dfrac{\sum(x-\bar{x})^2}{n-1}, \qquad
+    \text{STDEV.S}=s=\sqrt{\dfrac{\sum(x-\bar{x})^2}{n-1}},
+  $$
+  where $n$ is the sample size.
+
+- **Rounding rule:** for mean, variance and standard deviation, we keep at least one more digit than the accuracy of the data set.
+
+**Note:** To measure the spread, one may also use the **mean absolute deviation**
+$$MAD=\dfrac{\sum |x-\bar{x}|}{n}.$$
+However, the standard deviation has better properties in applications.
+
+???
+Show how to use Excel to find SD
+
+---
+
+## Example: Standard deviation - ages of oscar winners
+
+Find the mean and standard deviation ages of a sample of  32 best actor oscar winners (1970–2001).
+
+.center[
+```{r echo=FALSE, results = 'asis'} 
+cat(paste(sort(actor_age$Age), collapse=", "))
+```
+]
+
+--
+
+**Solution:** We use the Excel functions `AVERAGE()` and `STDEV.S()` to find the mean and sample standard deviation respectively.
+The mean is `r round(mean(actor_age$Age),1)`. The sample standard deviation is `r round(sd(actor_age$Age),1)`.
+
+`r knitr::include_url('https://www.geogebra.org/material/iframe/id/DS6PUaXy/width/1300/height/800/border/888888/sfsb/true/smb/false/stb/false/stbh/false/ai/false/asb/false/sri/false/rc/false/ld/false/sdz/false/ctl/false', height='290px')`
+
+.footmark[
+Source: https://www.geogebra.org/m/DS6PUaXy
+]
+
+---
+
+## Practice: Standard deviation
+
+A *sample* of GPAs from ten students random chosen from a college are recorded as follows.
+.center[1.90, 3.00, 2.53, 3.71, 2.12, 1.76, 2.71, 1.39, 4.00, 3.33]
+
+Find the standard deviation of this sample.
+
+---
+
+## Mean and Standard Deivation under Linear Transformation
+
+- When we increase values in a data set by a fixed number $c$, the standard deviation of a data set won't change. However, the mean increases by $c$ too.
+
+- When we multiple values in a data set by a factor $k$, the mean and the standard deviation both scale by the factor $k$.
+
+`r knitr::include_url('https://www.geogebra.org/material/iframe/id/r25rDxYZ/sfsb/true/smb/false/stb/false/stbh/false/ai/false/asb/false/sri/false/rc/false/ld/false/sdz/false/ctl/false', height='300px')`
+
+.footmark[
+Source: https://www.geogebra.org/m/r25rDxYZ
+]
+---
+
+## Effect of Changes of Data on Statistical Measures
+
+`r knitr::include_url('https://www.geogebra.org/material/iframe/id/fenbj3qZ/width/910/height/628/border/888888/sfsb/true/smb/false/stb/false/stbh/false/ai/false/asb/false/sri/false/rc/false/ld/false/sdz/false/ctl/false', height='550px')`
+
+.footmark[
+Source: https://www.geogebra.org/m/fenbj3qZ
+]
+
+---
+
+## Practice: Standard deviation under a transformation
+
+A sample of the highest temperature of 10 days has a standard deviation $5^\circ\mathrm{C}$ in Celsius.
+
+1. If we want to know the standard deviation in Fahrenheit, do we need to recalculate using the sample?
+
+2. What is the standard deviation in Fahrenheit.
+  
+---
+
+## The Empirical Rule
+
+If a data set has an **approximately bell-shaped** distribution, then
+
+1. approximately 68% of the data lie within one standard deviation of the mean.
+
+2. approximately 95% of the data lie within two standard deviations of the mean.
+
+3. approximately 99.7% of the data lies within three standard deviations of the mean.
+
+.center[
+![:resize Empirical Rule, 35%](Figures/Empirical-Rule.jpg)
+]
+
+.footmark[
+Image source: [Figure 2.16 "The Empirical Rule"  in Introductoray Statistics](https://saylordotorg.github.io/text_introductory-statistics/s06-05-the-empirical-rule-and-chebysh.html#fwk-shafer-ch02_s05_s01_f02)
+]
+
+---
+
+## Chebyshev’s Theorem
+
+For any numerical data set, at least $1−1/k^2$
+of the data lie within $k$ standard deviations of the mean, where $k$ is any positive whole number that is at least 2.
+
+.center[
+![:resize Empirical Rule, 45%](Figures/Chebyshev.jpg)
+]
+
+.footmark[
+Image source: [Figure 2.19 "Chebyshev’s Theorem"  in Introductoray Statistics](https://saylordotorg.github.io/text_introductory-statistics/s06-05-the-empirical-rule-and-chebysh.html#fwk-shafer-ch02_s05_s02_f01)
+]
+
+---
+
+## Example: Applications of the Empirical Rule
+
+A population data set with a bell-shaped distribution has mean $\mu = 6$ and standard deviation $\sigma = 2$. Find the approximate proportion of observations in the data set that lie:
+
+1. between 4 and 8;
+2. below 4.
+
+--
+
+**Solution:** Apply the Empirical Rule, there are 68% of data lie between 6-2=4 and 6+2=8. Since the distribution is symmetric, then 34% of data lie between 4 and 6, and 34% of data lie between 6 and 8. Then there are only 50%-34%=26% of data lie below 4.
+
+---
+
+## Example: Applications of Chebyshev's Theorem
+
+A sample data set has mean $\bar{x}=6$
+and standard deviation $s = 2$. Find the minimum proportion of observations in the data set that must lie
+between 2 and 10.
+
+**Solution:** Apply Chebyshev's theorem, there are 75% of data are between $\bar{x}-2s=2$ amd $\bar{x}+2s=10$.
+
+---
+
+## Practice: The empirical rule
+
+`r knitr::include_url("https://www.myopenmath.com/embedq2.php?id=25941&frame_id=303&resizer=true&seed=2020", height="550px")`
+
+---
+
+## Practice: Chebyshev’s Theorem
+
+A sample data set has mean $\bar{x}=10$ and standard deviation $s = 3$. Find the minimum proportion of observations in the data set that must lie between 1 and 19.
+
+.footmark[
+    Source: [2.5 The Empirical Rule and Chebyshev’s Theorem in Introductory Statistics](https://saylordotorg.github.io/text_introductory-statistics/s06-05-the-empirical-rule-and-chebysh.html#fwk-shafer-ch02_s05_s01_f02).
+]
+
+---
+
+class: center middle
+
+# More Practice
+
+---
+
+## Practice: Change of Measures on Transformation of Data
+
+A teacher decide to curve the final exam by adding 10 points for each student. Which of
+the following statistic will NOT change:  
+A. median,   B. mean,   C. interquartile range,   D. standard deviation?  
+**Please explain your conclusion.**
+
+---
+
+## Practice: Understand Standard Deviation From Graphs
+
+Which distribution of data has the SMALLEST standard deviation? Please explain your conclusion.
+
+.center[
+![Distributions with different standard deviation](Figures/SD-Pic.png)
+]
+
+---
+class: center, middle
+
+# Lab Instruction in Excel
+
+---
+
+## Mean, Median, Quartiles and Standard Deviation
+
+- To find the median, you may use the function `MEDIAN()`.
+
+- To find quartiles, you may use the function `QUARTILE.EXC()`.
+  
+  **Note:** this function calculates first and third quartiles with 25% and 75% weights. The results may be different from the results calculated by hand discussed in this course.
+
+- To find the mean, you may use the function `AVERAGE()`.
+
+- To find the **population** standard deviation, you may use the function `STDEV.P()`.
+
+- To find the **sample** standard deviation, you may use the function `STDEV.S()`.
+
+
+---
+
+## How to Create a Boxplot in Excel
+
+- Select your data—either a single data series, or multiple data series.
+
+- Click `Insert` > `Insert Statistic Chart` > `Box and Whisker` to create a boxplot.
+  
+For more information, see [Create a box and whisker chart in Excel 365](https://support.microsoft.com/en-us/office/create-a-box-and-whisker-chart-62f4219f-db4b-4754-aca8-4743f6190f0d)
+
+---
+
+## Lab Practice
+
+Consider the following sample that consists of speeds of 20 cars.
+.center[
+```{r carspeed, echo=FALSE, results = 'asis'}
+cat(paste(sample(cars$speed, 20, replace = TRUE), collapse=", "))
+```
+]
+
+1. Use Excel to find the mean, median, quartiles and standard deviation of the sample.
+2. Create a box-plot for the sample.

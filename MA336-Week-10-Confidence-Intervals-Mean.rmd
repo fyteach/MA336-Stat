@@ -1,0 +1,492 @@
+---
+title: "Confidence Intervals for Mean"
+subtitle: "MA336 Statistics<br/><br/>"
+author: "Fei Ye <br/><br/> Department of Mathematics and Computer Science<br/><br/>"
+date: '`r format(Sys.time(), "%B %Y")`'
+output:
+  xaringan::moon_reader:
+    self_contained: yes
+    mode: selfcontained
+    css: [default, default-fonts, "Assets/css/custom.css"]
+    mathjax: "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=TeX-MML-AM_HTMLorMML-full"
+    nature:
+      ratio: '16:9' # alternatives '16:9' or '4:3' or others e.g. 13:9
+      highlightStyle: github
+      countIncrementalSlides: false  
+      beforeInit: ["Assets/js/resize.js"]
+---
+
+```{r, echo=FALSE, warning=FALSE}
+knitr::opts_chunk$set(comment="#", fig.retina=2, crayon.enabled = TRUE, dpi=600)
+set.seed(15)
+library(stats)
+library(kableExtra)
+library(knitr)
+library(formattable)
+library(ggplot2)
+library(ggthemes)
+library(ggExtra)
+library(dplyr,warn.conflicts = FALSE)
+library(animation)
+library(gifski)
+library(latex2exp)
+# library(learnr)
+xaringanExtra::use_fit_screen()
+```
+
+```{css, echo=F}
+.remark-slide table, .remark-slide table thead th {
+    border-top: 0px;
+    border-bottom: 0px;
+}
+.remark-slide thead, .remark-slide tr:nth-child(even){
+  background-color: white;
+}
+table{
+  border-collapse: collapse;
+}
+.remark-slide thead:empty {
+  display: none;
+}
+```
+
+## Learning Goals for Confidence Intervals
+
+- Determine whether the study meets the conditions under which inferences on a population parameter may be performed.
+
+- Demonstrate understating of confidence level $1-\alpha$.
+
+- Explain when and why to use the normal distribution or the *t*-distribution for a given study.
+
+- Determine the appropriate degrees of freedom associated with the *t*-distribution.
+
+- Determine the critical values using tables or Excel functions.
+
+- Describe how the following will affect the width of the confidence interval:
+  - increasing the sample size;
+  - increasing the confidence level.
+
+- Construct and interpret a confidence intervals for one population mean.
+
+---
+
+## Point Estimation
+
+- When estimating a population parameter, we may consider the statistic of a random sample as an estimate of the population parameter. But we expect some chance error.
+
+- Estimating an unknown parameter by a single number calculated from a sample is called a **point estimation**. The single number (statistic) from the sample is called a **point estimate**.
+
+- Point estimate gives no indication of how reliable the estimate is or how large the error is.
+
+---
+
+## Example: Estimating Population Proportion by a Sample Proportion
+
+ From a box of 20 pencils of two colors, black and blue, 10 pencils were randomly drawn. 6 out of the 10 pencils are black. What proportion of black pencils are in the box.
+
+**Solution:** Since the sample proportion is 0.6, one may make a point estimation that 60% of the box, or 12 are black pencils. However, we don't know how close the sample proportion is to the population proportion.
+
+---
+
+## Interval Estimation
+
+- To increase the chance, we estimate an unknown parameter using intervals that are obtained by adding chance errors to a point estimate.
+  
+- Estimating an unknown parameter using an interval of values which likely contains the true value of the parameter is called a **interval estimation**. The interval is called an **interval estimate**.
+
+- The reliability of an interval estimate is measured by the probability $1-\alpha$ that the interval estimate will capture the true value of the parameter. This probability $1-\alpha$ is called the [**confidence level**](https://saylordotorg.github.io/text_introductory-statistics/s11-estimation.html).
+
+- The 90%, 95% and 99% level of confidence are frequently used in statistical study. The 95% level of confidence is usually the standard choice of confidence level for scientific polls published in the media and online.
+
+---
+
+## Example: Interval Estimate of Average GPA
+
+Recall that the **standard error** of a statistic, denoted by SE, is the standard deviation of the sampling distribution.
+
+A randomly selected 100 students at a college have an average GPA 3.0. How likely does the interval $[3.0-2\cdot\text{SE}, 3.0+2\cdot\text{SE}]$ contain the average GPA $\mu$ of that college?
+
+--
+
+**Solution:** The probability that the interval $[3.0-2\cdot\text{SE}, 3.0+2\cdot\text{SE}]$ contains the population mean $\mu$ equals the probability that the sample statistic 3.0 lies in the interval $[\mu-2\cdot\text{SE}, \mu+2\cdot\text{SE}]$. Since, $[\mu-2\cdot\text{SE}, \mu+2\cdot\text{SE}]$ contains 95.5% of data of the population.
+
+That means, we can be 95.5% confidence that the average GPA $\mu$ of that college is in the interval $[3.0-2\cdot\text{SE}, 3.0+2\cdot\text{SE}]$.
+
+---
+
+## Confidence Interval (1/2)
+
+- When the sampling distribution of a statistic is approximately symmetric, we take interval estimates in the following form $[\text{Statistic}- \text{E}, \text{Statistic}+ \text{E}],$ where the value $\text{E}$ is called the **marginal error** or **margin of error**.
+
+- Given a confidence level $100(1-\alpha)\%$, the marginal error $\text{E}$ is the value such that $100(1-\alpha)\%$ of the intervals $[\text{Statistic}- \text{E}, \text{Statistic}+ \text{E}]$ contains the true parameter $\mu_\text{par}$. Equivalently, the marginal error $\text{E}$ is the value such that $100(1-\alpha)\%$ of statistics are in the interval $[\mu_\text{par}- \text{E}, \mu_\text{par}+ \text{E}]$.
+
+- Denote by $X$ the random variable for the sample statistic. Then $\text{E}$ is determined the following probability equation
+  $$P(\mu_\text{par}-\text{E}< X < \mu_\text{par}+\text{E})=1-\alpha.$$
+  
+  If the distribution of $X$ is symmetric, then the marginal error $E$ is the value such that
+  $$P(X-\mu_\text{par}<\text{E})=1-\alpha/2.$$
+
+---
+
+## Confidence interval (2/2)
+
+- Because the parameter $\mu_\text{par}$ is unknown. If we standardize the random variable $X$ by $Z=\frac{X-\mu_\text{par}}{\text{SE}}$, we get
+  $$\textstyle P\left(-\frac{\text{E}}{\text{SE}}<Z<\frac{\text{E}}{\text{SE}}\right)=1-\alpha,$$
+  where the random variable $Z$ has a mean $0$ and standard deviation $1$.
+
+- The above probability equation suggests the following formula
+  $$\textstyle \text{Marginal Error}=\text{Critical value}\cdot \text{Standard Error},$$
+  where the **critical value** is [the value $z_{\alpha/2}$ so that $P(-z_{\alpha/2}<Z<z_{\alpha/2})=1-\alpha$](https://saylordotorg.github.io/text_introductory-statistics/s11-01-large-sample-estimation-of-a-p.html).
+
+- Let $X$ be a point estimate, we call the interval $[X-z_{\alpha/2}\text{SE}, X+z_{\alpha/2}\text{SE}]$ a **confidence interval** at the $100(1-\alpha)\%$ level of confidence.
+
+---
+
+## Visualization: Confidence Interval for Mean
+
+`r knitr::include_url('https://rpsychologist.com/d3/CI/', height='560px')`
+
+---
+
+## Confidence Intervals for Mean with Known Population SD
+
+- Suppose the population standard deviation $\sigma$ is given. By the central limit theorem, if $n>30$ or the population distribution is approximately normal, then the sampling distribution is approximately normal with the standard error $\sigma/\sqrt{n}$.  
+
+  At the confidence level $1-\alpha$, the marginal error for a population mean is
+  $E=z_{\alpha/2}\dfrac{\sigma}{\sqrt{n}}$ and the confidence interval is
+  $$\left[\bar{x}-z_{\alpha/2}\frac{\sigma}{\sqrt{n}}, \bar{x}+z_{\alpha/2}\frac{\sigma}{\sqrt{n}}\right],$$
+  where [the **critical value** $z_{\alpha/2}$ satisfies that $P(Z<z_{\alpha/2})=1-\alpha/2$](https://saylordotorg.github.io/text_introductory-statistics/s11-01-large-sample-estimation-of-a-p.html) for the standard normal variable $Z$.
+
+- In Excel, $z_{\alpha/2}$=`NORM.S.INV((1+confidence level)/2)`. 
+
+- The marginal error $E=z_{\alpha/2}\frac{\sigma}{\sqrt{n}}$ can also be obtained by the Excel function
+`CONFIDENCE.NORM(1-confidence level, sigma, n)`.
+
+---
+
+## Example: Find Critical Values
+
+A sample of size 15 drawn from a normally distributed population with the standard deviation 6. Find the critical value $z_{\alpha/2}$ needed in construction of a confidence interval:
+
+1. when the level of confidence is 90%;
+2. when the level of confidence is 98%.
+
+--
+
+**Solution:** One can find the critical value $z_{\alpha/2}$ by using the normal distribution table. Here, we will use the Excel function `NORM.S.INV(prob)`
+
+1. Using Excel function NORM.S.INV((1+0.9)/2), we get the critical value
+   $$z_{\alpha/2}=`r round(qnorm((1-0.1/2), 0,1),4)`.$$
+
+2. Using the Excel function `NORM.S.INV((1+0.98)/2)`, we get the critical value
+   $$z_{\alpha/2}=`r round(qnorm((1-0.02/2), 0,1),4)`.$$
+
+.footmark[
+  [Checkout this normal distribution interactive app](https://istats.shinyapps.io/NormalDist/)
+]
+
+---
+
+## Example: Mean GPA with Known Population SD
+
+A random sample of 50 students from a college gives a mean GPA 2.51. Suppose the standard deviation of GPA of all students at the college is 0.43. Construct a 99% confidence interval for the mean GPA of all students at the college.
+
+--
+
+**Solution:** We first gather information from the question:
+
+- The sample size is $n=50$,
+- The sample mean is $\bar{x}=2.51$,
+- The population standard deviation is $\sigma=0.43$, and
+- The confidence level is $1-\alpha=0.99$.
+
+Now let's find the critical value and the standard error.
+
+- The critical value $z_{\alpha/2}$=`NORM.S.INV((1+0.99)/2)` $\approx 2.576$
+- The standard error is $\sigma_{\bar{x}}=\sigma/\sqrt{n}=0.43/\sqrt{50}\approx 0.06.$
+
+Then the marginal error is $\text{E}=z_{\alpha/2}\cdot\sigma_{\bar{x}}=2.576\cdot 0.06\approx 0.16.$ We can conclude with 99% confidence that the average GPA of all students is between $2.51-0.16=2.35$ and $2.51+0.16=2.67$.
+
+.footmark[
+  **Note:** The marginal error $E$ can also be obtained by the Excel function
+  `CONFIDENCE.NORM(1-0.99, 0.43, 50)`.
+]
+
+---
+
+## Student's $t$-Distribution
+
+- When the population standard deviation is unknown, we may replace $\sigma$ by the sample standard deviation $s$ and use $s/\sqrt{n}$ as an estimate to the standard error for the sampling distribution of the sample mean.
+
+- When we use the estimated standard error $s / \sqrt{n}$ to build a confidence interval, the .red[normal distribution may NOT] be appropriate for calculating the critical value.
+
+- If the random variable $\bar{x}$ is approximately normal, then the random variable $t=\dfrac{\bar{x}-\mu}{s / \sqrt{n}}$ has a **[Student's $t$-distribution](https://en.wikipedia.org/wiki/Student%27s_t-distribution) with the degree of freedom $n-1$**.
+
+.center[
+![:resize t-curves, 50%](Figures/t-curves.svg)
+]
+
+???
+
+- This result was discovered by William Gosset, an employee of the Guinness brewing company, who published his result using the name Student.
+
+- Unlike in the case of a sample proportion, the sample standard deviation $s$ is not determined by the sample mean $\bar{x}$.
+
+---
+
+## Properties of Student's $t$-Distribution
+
+- The $t$-distributions is a family of curves, called **\\(t\\)-curves**, parameterized by the degrees of freedom.
+
+- The $t$-distribution has the following important properties.
+  1. Similar to the standard normal curve, it is .blue[symmetric about 0] and the .blue[total area] under a $t$-curve .blue[is 1].
+  2. The $t$-distribution has slightly more variation (i.e. $t$-curves are .blue[slightly “fatter”]) than the standard normal distribution.
+  3. When the .blue[degree of freedom increases], the $t$-distribution becomes .blue[closer to the standard normal distribution].
+
+- In practice, when the sample size is large enough $n>30$, people use normal distribution as an approximation for the Student $t$-distribution.
+
+---
+
+## Visualization: $t$-distributions
+
+`r knitr::include_url('https://rpsychologist.com/d3/tdist/', height='560px')`
+
+.footmark[
+Source: [https://rpsychologist.com/d3/tdist/](https://rpsychologist.com/d3/tdist/)
+]
+---
+
+## Confidence Intervals for a Mean with .red[Unknown] Population SD
+
+- Suppose the sampling distribution is approximately normal. At the confidence level $1-\alpha$, the margin of error is $E=t_{\alpha/2}\frac{s}{\sqrt{n}},$
+  and the confidence interval for a population mean $\mu$ is
+  $$\left[\bar{x}-t_{\alpha/2}\frac{s}{\sqrt{n}}, \bar{x}+t_{\alpha/2}\frac{s}{\sqrt{n}}\right],$$
+  where $t_{\alpha/2}$ is the critical value such that $P(T<t_{\alpha/2})=1-\alpha/2$ for a Student $t$-distribution with degree of freedom $n-1$.
+
+- In Excel, the critical value $t_{\alpha/2}$ can be calculated by `T.INV((1+confidence level)/2, n-1)` or `T.INV.2T(1-confidence level, n-1)`, where $n$ is the sample size.
+
+- The marginal error $E=t_{\alpha/2}\frac{s}{\sqrt{n}}$ can also be obtained by the Excel function
+`CONFIDENCE.T(1-confidence level, s, n)`.
+
+---
+
+## Example: Critical Values for $t$-Distributions
+
+A sample of size 15 drawn from a normally distributed population. Find the critical value $t_{\alpha/2}$ needed in construction of a confidence interval:
+
+1. when the level of confidence is 99%;
+2. when the level of confidence is 95%.
+
+--
+
+**Solution:** To find the critical value $t_{\alpha/2}$, we may use the Excel function `T.INV(left tail area, df)` or `T.INV.2T(tail areas, df)`.
+
+<!-- One way to find the critical value $t_{\alpha/2}$ is to use the $t$-value table.
+.center[
+| |        |        |   C-I     |        |        |
+| ------------------- | ------ | ------ | ------ | ------ | ------ |
+|   df                  | 99% | 98% | 95% | 90% | 80% |
+| 14                  | .red[2.9768] | 2.6245 | .red[2.1448] | 1.7613 | 1.345  |
+] -->
+
+1. Since the confidence level is $1-\alpha=0.99$, the critical value is
+   $t_{\alpha/2}$ =`T.INV.2T(1-0.99, 15-1)`=`T.INV((1+0.99)/2, 15-1)`=`r round(qt(1-0.005, 14),4)`.
+
+2. Since the confidence level is $1-\alpha=0.95$, the critical value is
+   $t_{\alpha/2}$ =`T.INV.2T(1-0.95, 15-1)`=`T.INV((1+0.95)/2, 15-1)`=`r round(qt(1-0.025, 14),4)`.
+
+.footmark[
+  [Checkout this t-distribution interactive app](https://istats.shinyapps.io/tdist/)
+]
+
+---
+
+## Example: Confidence Interval with Unknown Population SD
+
+A sample of size 16 is randomly drawn from a normally distributed population. The sample has a mean 79 and standard deviation 7. Construct a confidence interval for that population mean at the 90% level of confidence.
+
+--
+
+**Solution:** Since the population is normally distributed, and the population standard deviation is unknown, we apply the formula $\text{E}=t_{\alpha/2}\cdot\dfrac{s}{\sqrt{n}}$ for marginal error.
+
+Since the sample size is 16, the degree of freedom is .red[df=15].
+
+At 90% confidence level, the critical value is $t_{\alpha/2}=$ `T.INV((1+0.9)/2, 16-1)` $\approx 1.753$.
+
+Then the marginal error is $\text{E}=1.753\cdot 7/\sqrt{16}\approx 3$. Thus $\bar{x}-\text{E}=79-3=76$ and $\bar{x}+\text{E}=79+3=82$.
+
+With 90% confidence, we may conclude that the population mean is in the interval $[76, 82]$.
+
+.footmark[
+  **Note:** The marginal error $E$ can also be obtained by `CONFIDENCE.T(1-0.9, 7, 16)`
+]
+
+---
+
+## Example: Average Working Hours in Grocery Stores
+
+The data blow shows numbers of hours worked from 40 randomly selected employees from several grocery stores in the county.
+
+```{r echo=FALSE}
+hours <- c(30,26,33,26,26,33,31,31,21,37,27,20,34,35,30,24,38,34,39,31,22,30,23,23,31,44,31,33,33,26,27,28,25,35,23,32,29,31,25,27)
+hours.df=matrix(hours,ncol=20,byrow=TRUE)
+hours.df <- as.data.frame(hours.df)
+
+hours.df[] <- mutate_all(hours.df, function(x) {
+    cell_spec(x,
+      color = spec_color(x, begin=0.4, end = 0.9,  direction = 1)
+    )
+  }
+)
+
+kable(hours.df, col.names = NULL, escape = F, align = "c", "html") %>%
+  kable_styling()
+```
+
+Construct 99% confidence interval for the mean worked time.
+
+--
+
+**Solution:** Since the sample size is 40 (>30), by the central limit theorem, the sample mean is approximately normally distributed.
+Using the Excel functions `AVERAGE()` and `STDEV.S()` to the data, we find $\bar{x}\approx 29.6$ and $s\approx 5.3$.
+
+Since $\alpha=1-0.99=0.01$, the marginal error is $\text{E}=$ `CONFIDENCE.T(0.01, 5.3, 40)` $\approx 2.3$. Thus $\bar{x}-\text{E}=29.6-2.3=27.3$ and $\bar{x}+\text{E}=29.6+2.3=31.9$
+
+With a 99% confidence, one may conclude that the average worked hours of employees in all grocery stores is between 27.3 and 31.9 hours.
+
+---
+
+## Choose Between Normal Distribution and $t$-Distribution
+
+- Population is .red[approximately normally] distributed.
+  - the population standard deviation $\sigma$ is .blue[known]: use the .blue[normal distribution].
+  - the population standard deviation $\sigma$ is .yellow[*unknown*]: use the $t$-.yellow[*distribution*].
+
+- Population distribution unknown, but .gold[sample size is large enough], i.e. $n>30$.
+  - the population standard deviation $\sigma$ is .gray[known]: use .gray[normal distribution].
+  - the population standard deviation $\sigma$ is .purple[*unknown*]: either one can be used but the $t$-.purple[*distribution*] is more accurate.
+
+- **.red[Warning:]** Population distribution unknown and the .red[sample size is small, neither] the $t$-distribution nor the normal distribution is reliable.
+
+- For small samples, there is method called "[The Shapiro–Wilk test](http://www.sthda.com/english/wiki/normality-test-in-r#normality-test)" which can be used to determine if we may assume the sampling distribution is approximately normal.
+
+- Even when $n>30$, a visual inspection (using histogram for example) of the normality is necessary.
+
+---
+
+## Practice: Conceptual Questions on Confidence Intervals
+
+Decide whether the following statements are true or false. Explain your reasoning.
+
+- The statement, "the 95% confidence interval for the population mean is (350, 400)" means that 95% of the population values are between 350 and 400.
+- For a given standard error, lower confidence levels produce wider confidence intervals.
+- If you increase sample size, the width of confidence intervals will increase.
+- If you take large random samples over and over again from the same population, and make 95% confidence intervals for the population average, about 95% of the intervals should contain the population average.
+
+.footmark[
+  Source: [Conceptual Questions on Confidence Intervals](http://www2.stat.duke.edu/~jerry/sta101/confidenceintervalsans.html)
+]
+
+---
+
+## Practice: Find the Critical $z$-Value
+
+`r knitr::include_url('https://www.myopenmath.com/embedq2.php?id=615399&seed=2020&showansafter',height='560px')`
+
+---
+
+## Practice: Find the Marginal Error with known $\sigma$
+
+`r knitr::include_url('https://www.myopenmath.com/embedq2.php?id=7366&seed=2020&showansafter',height='560px')`
+
+---
+
+## Practice: Confidence Interval for SAT Scores with Known $\sigma$
+
+`r knitr::include_url('https://www.myopenmath.com/embedq2.php?id=325383&seed=2020&showansafter',height='560px')`
+
+---
+
+## Practice: Find the Critical $t$-Value
+
+`r knitr::include_url('https://www.myopenmath.com/embedq2.php?id=7372&seed=2020&showansafter',height='560px')`
+
+---
+
+## Practice: Find the Marginal Error with Unknown $\sigma$
+
+`r knitr::include_url('https://www.myopenmath.com/embedq2.php?id=7369&seed=2020&showansafter',height='560px')`
+
+<!-- --- -->
+
+<!-- ## Practice: How Much Alcohol Do College Students Drink
+
+A statistics student is curious about drinking habits of students at his college. He wants to estimate the mean number of alcoholic drinks consumed each week by students at his college. He plans to use a 90% confidence interval. He surveys a random sample of 71 students. The sample mean is 3.93 alcoholic drinks per week. The sample standard deviation is 3.78 drinks.
+
+.footmark[
+  Source: [Estimating a Population Mean (2 of 3)](https://courses.lumenlearning.com/wmopen-concepts-statistics/chapter/estimating-a-population-mean-2-of-3/)
+] -->
+
+<!-- --- -->
+<!-- 
+## Practice: Estimating Average Distance from Home to Workplace
+
+Four hundred randomly selected working adults in a certain state, including those who worked at home, were asked the distance from their home to their workplace. The average distance was 8.84 miles with standard deviation 2.70 miles.
+
+Construct a 98% confidence interval for the mean distance from home to work for all residents of this state.
+
+.footmark[
+  Source: [Exercise 8 in Section 7.1 in Introductory Statistics](https://saylordotorg.github.io/text_introductory-statistics/s11-01-large-sample-estimation-of-a-p.html)
+] -->
+
+<!-- --- -->
+<!-- 
+## Practice: Estimate Mean Lifetime
+
+City planners wish to estimate the mean lifetime of the most commonly planted trees in urban settings. A sample of 16 recently felled trees yielded mean age 32.7 years with standard deviation 3.1 years. Assuming the lifetimes of all such trees are normally distributed, construct a 99.8% confidence interval for the mean lifetime of all such trees.
+
+.footmark[
+Source: [Exercise 7 in Section 7.2 in Introductory Statistics](https://saylordotorg.github.io/text_introductory-statistics/s11-02-small-sample-estimation-of-a-p.html)
+] -->
+
+---
+
+## Practice: Confidence Interval from a Data Set
+
+`r knitr::include_url('https://www.myopenmath.com/embedq2.php?id=7382&seed=2020&showansafter',height='560px')`
+
+---
+
+class: center middle
+
+# Lab Instructions in Excel
+
+---
+
+## Excel Functions for $t$-Distributions
+
+Suppose a Student's $t$-distribution has the degree of freedom $\text{df}=n-1$.
+
+- Find a probability for a given $t$-value.
+
+  - The area of the left tail of the $t$-value may be calculated by the function `T.DIST(t,df,true)`.
+
+  - The area of the right tail of the $t$-value may be calculated by the function `T.DIST.RT(t,df)`.
+
+  - The area of two tails of the $t$-value (here $t$>0) may be calculated by function `T.DIST.2T(t,df)`.
+
+- Find the critical value for a given probability $p$.
+
+  - When the area of the left tail is given, the function `T.INV(p,df)` may be used.
+  
+  - When the area of both tails is given, the function `T.INV.2T(p,df)` may be used. This function is good for construction confidence interval.
+
+---
+
+## Excel Functions for Marginal Errors
+
+- If the population standard deviation $\sigma$ is given and the sampling distribution is approximately normal, the marginal error can be obtained by the Excel function
+`CONFIDENCE.NORM(1-confidence level, population SD, sample size)`
+
+- If the population standard deviation $\sigma$ is NOT given and the sampling distribution is approximately normal, the marginal error can be obtained by the Excel function, the marginal error can be obtained by the Excel function
+`CONFIDENCE.T(1-confidence level, sample SD, sample size)`
